@@ -1,91 +1,85 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
+from IPython import get_ipython
+
+# %%
 from aocd.models import Puzzle
 from typing import Tuple, Dict
 from collections import defaultdict
-from itertools import combinations, product, count
+from itertools import combinations, product, count, chain
 from functools import lru_cache, reduce
-from operator import mul
+from operator import mul, add
 import re
 
-puzzle = Puzzle(year=2020, day=14)
-print(puzzle.input_data)
+puzzle = Puzzle(year=2020, day=18)
+# print(puzzle.input_data)
 
 
 # %%
-memory = {}
-program = puzzle.input_data.splitlines()
-program_pattern = r"(\w+)\[?(\d*)\]? = (\w+)"
-
-def apply_mask(number:int, mask:str):
-    number &= int(mask.replace('X', '1'), base=2)
-    number |= int(mask.replace('X', '0'), base=2)
-    return number
-
-for line in program:
-    match = re.match(program_pattern, line).groups()
-    if match[0] == 'mask':
-        mask = match[2]
-    if match[0] == 'mem':
-        memory[match[1]] = apply_mask(int(match[2]), mask)
-
-answer_a = sum(memory.values())
+lines = [[x for x in line.replace('(', '( ').replace(')', ' )').split()] for line in puzzle.input_data.splitlines()]
+test1 = '(2 * 3 + (4 * 5))'.replace('(', '( ').replace(')', ' )').split() # 26
+test2 = '5 + (8 * 3 + 9 + 3 * 4 * 3)'.replace('(', '( ').replace(')', ' )').split() # 437
+test3 = '5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))'.replace('(', '( ').replace(')', ' )').split() # 12240
+test4 = '((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2'.replace('(', '( ').replace(')', ' )').split() # 13632
 
 
 # %%
-puzzle.answer_a = answer_a
+class AST:
+    operators = {'+': add, '*': mul}
+    def __init__(self, rootValue, leftChild=None, rightChild=None):
+        self.rootValue = rootValue
+        self.leftChild = leftChild
+        self.rightChild = rightChild
+
+    def __repr__(self):
+        return str((self.rootValue, self.leftChild, self.rightChild))
+
+    def evaluate(self):
+        if self.leftChild is None and self.rightChild is None:
+            return self.rootValue
+        elif self.rootValue in self.operators:
+            return self.operators[self.rootValue](self.leftChild.evaluate(), self.rightChild.evaluate())
+        else:
+            raise ValueError
+    
+
+def create_AST(tokens:list):
+        stack = []
+        root = AST(None)
+        current = root
+        stack.append(root)
+        for token in tokens:
+            print(root)
+            if token == '(':
+                new = AST(None)
+                current.leftChild = new
+                stack.append(current)
+                current = new
+            elif token in AST.operators:
+                current.rootValue = token
+                new = AST(None)
+                current.rightChild = new
+                current = new
+            elif token.isnumeric():
+                new = AST(int(token))
+                if current.leftChild is None:
+                    current.leftChild = new 
+                else:
+                    current.rightChild = new              
+            elif token == ')':
+                current = stack.pop()
+            else:
+                raise ValueError
+        return root
+
+assert(create_AST(test1).evaluate() == 26)
+assert(create_AST(test2).evaluate() == 437)
+assert(create_AST(test3).evaluate() == 12240)
+assert(create_AST(test4).evaluate() == 13632)
 
 
 # %%
-test1="""mask = 000000000000000000000000000000X1001X
-mem[42] = 100
-mask = 00000000000000000000000000000000X0XX
-mem[26] = 1"""
-
-
-
-memory = {}
-program = puzzle.input_data.splitlines()
-# program = test1.splitlines()
-program_pattern = r"(\w+)\[?(\d*)\]? = (\w+)"
-
-def mask_address(address:int, mask:str) -> list:
-    out = []
-    num_floating = mask.count('X')
-    xpos = [i for i,x in enumerate(mask) if x == 'X']
-    ones = mask.replace('X', '0')
-    address_temp = address|int(ones, base=2)
-    add_str = bin(address_temp)[2:].rjust(36, '0')
-    for comb in product('01', repeat=num_floating):
-        temp_addr = add_str
-        for i,pos in enumerate(xpos):
-            temp_addr = temp_addr[:pos] + comb[i] + temp_addr[pos+1:]
-        out.append(int(temp_addr, base=2))
-    return out
-
-for line in program:
-    match = re.match(program_pattern, line).groups()
-    if match[0] == 'mask':
-        mask = match[2]
-    if match[0] == 'mem':
-        addresses = mask_address(int(match[1]), mask)
-        for address in addresses:
-            memory[address] = int(match[2])
-
-answer_b = sum(memory.values())
-print(answer_b)
-
-
-# %%
-puzzle.answer_b = answer_b
-
-
-# %%
-mask_address(10, '00X0')
-
-
-# %%
-
+get_ipython().run_line_magic('debug', '')
 
 
