@@ -8,3 +8,5 @@ import re
 
 puzzle = Puzzle(year=2020, day=20)
 
+input_sections = puzzle.input_data.split('\n\n')
+print(len(input_sections))
