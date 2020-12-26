@@ -8,6 +8,7 @@ advent-of-code-data = "*"
 ipykernel = "*"
 pandas = "*"
 jupyter = "*"
+regex = "*"
 
 [dev-packages]
 pylint = "*"
