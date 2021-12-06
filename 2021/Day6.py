@@ -1,4 +1,5 @@
 from typing import List
+from aocd.models import Puzzle
 
 
 TEST_DATA = """3,4,3,1,2"""
@@ -48,3 +49,12 @@ if __name__ == "__main__":
     school.simulate_a(16)
     assert(school.get_fish_state_str() == EXPECTED_18)
     print(school.get_fish_state_str())
+
+    start_timers = [int(x) for x in open(file='2021\Day6.txt').read().split(',')]
+    start_fishes = [LanternFish(x) for x in start_timers]
+    school = FishSchool(start_fishes)
+    school.simulate_a(80)
+    print(f"Number of fish after 80 days: {school.get_total_fish()}")
+
+    puzzle = Puzzle(year=2021, day=6)
+    puzzle.answer_a = school.get_total_fish()
