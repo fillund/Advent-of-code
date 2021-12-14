@@ -1,4 +1,3 @@
-from functools import reduce
 from aocd.models import Puzzle
 from typing import List, Dict, Tuple, Set
 
@@ -62,7 +61,7 @@ def fold(grid: Set[Tuple[int,int]], axis:str, coord:int)->Set[Tuple[int,int]]:
     else:
         ax = 1
     bound = max((c[ax] for c in grid))
-    print(bound)
+    # print(bound)
     keep = {c for c in grid if c[ax]<coord}
     other = grid-keep
     if axis == 'x':
@@ -94,15 +93,15 @@ def pretty(grid: Set[Tuple[int, int]]):
 if __name__ == "__main__":
     puzzle = Puzzle(year=2021, day=13)
     grid, instructions = get_data_and_instructions(TEST_DATA.splitlines())
-    print(pretty(grid))
+    # print(pretty(grid))
     ans, out_grid = solve_a(grid, instructions) 
-    print(pretty(out_grid))
+    # print(pretty(out_grid))
     assert(ans == 17)
 
     # grid, instructions = get_data_and_instructions(puzzle.input_data.splitlines())
-    # ans, out_grid = solve_a(grid, instructions)
+    ans, out_grid = solve_a(grid, instructions)
     # # print(pretty(out_grid))
-    # puzzle.answer_a = ans
+    puzzle.answer_a = ans
 
     grid, instructions = get_data_and_instructions(puzzle.input_data.splitlines())
     out_grid = solve_b(grid, instructions)
