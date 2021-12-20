@@ -1,9 +1,10 @@
-import itertools as it
 import typing
 from aocd.models import Puzzle
 from typing import List, Dict, Tuple, Set
 from collections import Counter, defaultdict
 from enum import Enum, auto
+from operator import mul
+from functools import reduce
 
 TEST_HEXDATA = """D2FE28"""
 TEST_HEXANS = """110100101111111000101000"""
@@ -34,9 +35,32 @@ class Packet:
 
     def __repr__(self) -> str:
         return ' '.join([repr(self.version), repr(self.typ), repr(self.content)])
-        
 
+    def sum_ver(self):
+        if isinstance(self.content, int):
+            return self.version
+        else:
+            return self.version + sum([p.sum_ver() for p in self.content])
 
+    def evaluate(self):
+        if self.typ == 0:
+            return sum([p.evaluate() for p in self.content])
+        elif self.typ == 1:
+            return reduce(mul, [p.evaluate() for p in self.content])
+        elif self.typ == 2:
+            return min([p.evaluate() for p in self.content])
+        elif self.typ == 3:
+            return max([p.evaluate() for p in self.content])
+        elif self.typ == 4:
+            return self.content
+        elif self.typ == 5:
+            return int(self.content[0].evaluate() > self.content[1].evaluate()) 
+        elif self.typ == 6:
+            return int(self.content[0].evaluate() < self.content[1].evaluate()) 
+        elif self.typ == 7:
+            return int(self.content[0].evaluate() == self.content[1].evaluate()) 
+        else:
+            assert(False)
 
 def hex2bin(hex_str:str)-> str:
     return ''.join([format(int(c, 16), '04b') for c in hex_str])
@@ -88,7 +112,9 @@ class Hexparser:
 # Do a recursive solution instead?
 def parse(bitstr:str, num_packets = None) -> Tuple[list, str]:
     packets = []
+    i = 0
     while len(bitstr) > 10:
+        i += 1
         if num_packets is not None and len(packets)==num_packets:
             break
 
@@ -104,19 +130,19 @@ def parse(bitstr:str, num_packets = None) -> Tuple[list, str]:
             lenghttype = int(bitstr[6])
             if lenghttype == LengthType.TOTAL_LENGTH.value:
                 LEN_BITS = 7+15
-                length = int(bitstr[7:LEN_BITS])
+                length = int(bitstr[7:LEN_BITS], 2)
 
-                packets.append(Packet(version, typ, None))
                 new_packets, _ = parse(bitstr[LEN_BITS:LEN_BITS+length])
                 bitstr = bitstr[LEN_BITS+length:]
-                packets.extend(new_packets)
+                # packets.extend(new_packets)
+                packets.append(Packet(version, typ, new_packets))
 
             elif lenghttype == LengthType.SUBPACKETS.value:
                 LEN_BITS = 7+11
                 n = int(bitstr[7:LEN_BITS], 2)
-                packets.append(Packet(version, typ, None))
                 new_packets, bitstr = parse(bitstr[LEN_BITS:], n)
-                packets.extend(new_packets)
+                packets.append(Packet(version, typ, new_packets))
+                # packets.extend(new_packets)
 
     return packets, bitstr
 
@@ -135,6 +161,9 @@ def parse_literal(bitstr:str) -> Tuple[int, str]:
     return value, bitstr[i:]
 
 
+
+
+
 if __name__ == "__main__":
     apa, bepa = parse("11101110000000001101010000001100100000100011000001100000")
 
@@ -146,28 +175,28 @@ if __name__ == "__main__":
     packets, remaining_bits = parse(bits)
     print(packets)
     print(remaining_bits)
-    ver_sum = sum([p.version for p in packets])
+    ver_sum =  packets[0].sum_ver()
     assert(ver_sum == 16)
 
     bits = hex2bin("620080001611562C8802118E34")
     packets, remaining_bits = parse(bits)
     print(packets)
     print(remaining_bits)
-    ver_sum = sum([p.version for p in packets])
+    ver_sum = packets[0].sum_ver()
     assert(ver_sum == 12)
 
     bits = hex2bin("C0015000016115A2E0802F182340")
     packets, remaining_bits = parse(bits)
     print(packets)
     print(remaining_bits)
-    ver_sum = sum([p.version for p in packets])
+    ver_sum = packets[0].sum_ver()
     assert(ver_sum == 23)
 
     bits = hex2bin("A0016C880162017C3686B18A3D4780")
     packets, remaining_bits = parse(bits)
     print(packets)
     print(remaining_bits)
-    ver_sum = sum([p.version for p in packets])
+    ver_sum = packets[0].sum_ver()
     assert(ver_sum == 31)
 
 
@@ -178,5 +207,8 @@ if __name__ == "__main__":
     packets, remaining_bits = parse(bits)
     print(packets)
     print(remaining_bits)
-    ver_sum = sum([p.version for p in packets])
+    ver_sum = packets[0].sum_ver()
     puzzle.answer_a = ver_sum
+
+    ans_b = packets[0].evaluate()
+    puzzle.answer_b = packets[0].evaluate()
