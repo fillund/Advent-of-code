@@ -44,11 +44,7 @@ class Rope:
 
                 if norm(diff, np.inf) > 1:
                     # The tail should move
-                    tail += vec
-                    if all(diff != 0):
-                        # Compensate for diagonal
-                        short_dim = np.argmin(abs(diff))
-                        tail[short_dim] += np.sign(diff)[short_dim]
+                    tail += np.sign(diff)
                     self.knots[i+1] = tail
             self.history.append(tuple(self.knots))
             self.visited.add(tuple(self.knots[-1]))         
@@ -67,21 +63,7 @@ class Rope:
 
     def num_visited(self):
         return len(self.visited)
-        
-    def print_visited(self):
-        maxx = max(self.visited, key=lambda a: a[0])[0]
-        minx = min(self.visited, key=lambda a: a[0])[0]
-        maxy = max(self.visited, key=lambda a: a[1])[1]
-        miny = min(self.visited, key=lambda a: a[1])[1]
-        for y in reversed(range(miny, maxy)):
-            curr_line = []
-            for x in range(minx, maxx):
-                if (x,y) in self.visited:
-                    curr_line.append('#')
-                else:
-                    curr_line.append('.')
-            print(''.join(curr_line))
-    
+            
     def print_state(self):
         maxx = 10#max(self.visited, key=lambda a: a[0])[0]
         minx = 0#min(self.visited, key=lambda a: a[0])[0]
