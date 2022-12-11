@@ -9,6 +9,7 @@ ipykernel = "*"
 pandas = "*"
 jupyter = "*"
 numpy = "*"
+tqdm = "*"
 
 [dev-packages]
 pylint = "*"
