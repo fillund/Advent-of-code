@@ -76,8 +76,6 @@ def do_rounds(monkeys: List[Monkey], n:int) -> List[Monkey]:
             transactions = monkey.do_turn()
             for trans in transactions:
                 monkeys[trans.target].add(trans.item)
-        if i%1000 == 0:
-            print(f'Round {i}')
     return monkeys
         
 def calc_monkey_business(monkeys: List[Monkey]):
