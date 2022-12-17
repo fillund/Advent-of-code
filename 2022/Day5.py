@@ -55,31 +55,32 @@ class Configuration():
 
     def highest(self):
         return max([len(v) for _,v in self.stacks.items()])
+if __name__ == "__main__":
 
-puzzle = Puzzle(year=2022, day=5)
+    puzzle = Puzzle(year=2022, day=5)
 
-start = Configuration.parse_header(puzzle.example_data)
+    start = Configuration.parse_header(puzzle.example_data)
 
-lines = puzzle.example_data.splitlines()[start.highest()+2:]
+    lines = puzzle.example_data.splitlines()[start.highest()+2:]
 
-print(lines)
+    print(lines)
 
-conf = start
-for line in lines:
-    conf = conf.apply(*numbers(line))
+    conf = start
+    for line in lines:
+        conf = conf.apply(*numbers(line))
 
-example_a = conf.top()
+    example_a = conf.top()
 
-assert(example_a == 'CMZ')
+    assert(example_a == 'CMZ')
 
-start = Configuration.parse_header(puzzle.input_data)
-lines = puzzle.input_data.splitlines()[start.highest()+2:]
-conf = start
-for line in lines:
-    conf = conf.apply(*numbers(line))
-puzzle.answer_a = conf.top()
+    start = Configuration.parse_header(puzzle.input_data)
+    lines = puzzle.input_data.splitlines()[start.highest()+2:]
+    conf = start
+    for line in lines:
+        conf = conf.apply(*numbers(line))
+    puzzle.answer_a = conf.top()
 
-conf = start
-for line in lines:
-    conf = conf.apply_inorder(*numbers(line))
-puzzle.answer_b = conf.top()
+    conf = start
+    for line in lines:
+        conf = conf.apply_inorder(*numbers(line))
+    puzzle.answer_b = conf.top()
