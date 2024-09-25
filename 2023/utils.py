@@ -1,6 +1,8 @@
 from typing import Iterable
 from itertools import tee
 from typing import NamedTuple
+import re
+
 
 Point = NamedTuple('Point', [('x', int), ('y', int)])
 
@@ -31,3 +33,6 @@ def neighbours(point: Point) -> list[Point]:
             if (ox, oy) != (0,0):
                 out.append(Point(point.x + ox, point.y + oy))
     return out
+
+def numbers(string:str):
+    return list(map(int, re.findall(r'\d+', string)))

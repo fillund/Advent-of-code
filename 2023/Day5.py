@@ -68,14 +68,16 @@ def solve_a(data:str) -> int:
 def parse_seedrange(seed_range: list[int]):
     pairs = utils.grouper(seed_range, 2)
     assert len(pairs) == len(seed_range)/2
-    return it.chain.from_iterable([range(pair[0], pair[0]+pair[1]) for pair in pairs])
+    data = [range(pair[0], pair[0]+pair[1]) for pair in pairs]
+    length = sum(len(a) for a in data)
+    return it.chain.from_iterable(data), length
 
 def solve_b(data:str) -> int:
     seed_range, mappings = parse_data(data)
 
-    seeds = parse_seedrange(seed_range)
+    seeds, length = parse_seedrange(seed_range)
     fun = lambda x: chainmap(x, mappings)
-    return (min(map(fun, seeds)))
+    return (min(map(fun, tqdm(seeds, total=length))))
 
     
 
