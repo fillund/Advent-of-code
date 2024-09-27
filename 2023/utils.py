@@ -1,10 +1,25 @@
 from typing import Iterable
 from itertools import tee
-from typing import NamedTuple
+from dataclasses import dataclass
 import re
+from math import sqrt
 
-
-Point = NamedTuple('Point', [('x', int), ('y', int)])
+@dataclass
+class Point():
+    x:float
+    y:float
+    def __hash__(self):
+        return hash((self.x, self.y))
+    def __eq__(self, other):
+        if isinstance(other, "Point"):
+            return self.x == other.x and self.y == other.y
+        return False
+    def L2(self, other:"Point"):
+        # Euclidean distance to other point
+        return sqrt((self.x-other.x)**2 + (self.y-other.y)**2)
+    def L1(self, other:"Point"):
+        # Manhattan distance to other point
+        return abs(self.x-other.x)+abs(self.y-other.y)
 
 def nwise(iterable:Iterable, n:int)->Iterable[tuple]:
     iters = tee(iterable, n)
@@ -33,6 +48,13 @@ def neighbours(point: Point) -> list[Point]:
             if (ox, oy) != (0,0):
                 out.append(Point(point.x + ox, point.y + oy))
     return out
+
+def bounding_box(points:Iterable[Point]):
+    min_x = min((p.x for p in points))
+    max_x = max((p.x for p in points))
+    min_y = min((p.y for p in points))
+    max_y = max((p.y for p in points))
+    return (min_x, max_x, min_y, max_y)
 
 def numbers(string:str):
     return list(map(int, re.findall(r'\d+', string)))
