@@ -6,8 +6,8 @@ from math import sqrt
 
 @dataclass
 class Point():
-    x:float
-    y:float
+    x:int
+    y:int
     def __hash__(self):
         return hash((self.x, self.y))
     def __eq__(self, other):
