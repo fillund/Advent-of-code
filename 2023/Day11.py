@@ -6,7 +6,7 @@ from typing import Iterable
 
 
 
-def solve_a(data:str):
+def solve_a(data:str, expansion=1):
     grid_in = parse_grid(data)
     galaxy_points_in = {k for k,v in grid_in.items() if v=='#'}
     #Find empty columns
@@ -23,10 +23,11 @@ def solve_a(data:str):
     for gp in galaxy_points_in:
         columns_before = len([x for x in empty_columns if x<gp.x])
         rows_before = len([y for y in empty_rows if y<gp.y])
-        new_point = Point(gp.x+columns_before,
-                          gp.y+rows_before)
+        new_point = Point(gp.x+columns_before*expansion,
+                          gp.y+rows_before*expansion)
         galaxy.add(new_point)
     #Create pairs
+    assert(len(galaxy_points_in) == len(galaxy))
     pairs = it.combinations(galaxy, 2)
 
     #Manhattan distance between all pairs
@@ -46,3 +47,7 @@ if __name__ == "__main__":
     assert(example_a == 374)
     answer_a = solve_a(puzzle.input_data)
     puzzle.answer_a = answer_a
+    example_b_1 = solve_a(puzzle.example_data, 10)
+    assert(example_b_1 == 1030)
+    example_b_2 = solve_a(puzzle.example_data, 100)
+    assert(example_b_2 == 8410)
