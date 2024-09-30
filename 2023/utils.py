@@ -11,7 +11,7 @@ class Point():
     def __hash__(self):
         return hash((self.x, self.y))
     def __eq__(self, other):
-        if isinstance(other, "Point"):
+        if isinstance(other, Point):
             return self.x == other.x and self.y == other.y
         return False
     def L2(self, other:"Point"):
@@ -39,6 +39,23 @@ def parse_grid(data:str) -> dict[Point, str]:
         for x, char in enumerate(line):
             grid[Point(x, y)] = char
     return grid
+
+def plot_grid(original:dict[Point, str], markers:dict[Point, str]={}):
+    assert(all([k in original for k in markers.keys()]))
+    bb = bounding_box(original.keys())
+    lines = []
+    for row in range(bb[2], bb[3]+1):
+        sorted_row = sorted(filter(lambda i: i[0].y == row, original.items()), key=lambda i: i[0].x)
+        line = [markers[a[0]] if a[0] in markers else a[1] for a in sorted_row]
+        lines.append(''.join(line))
+        # for item in sorted_row:
+
+        #     char = item[1]
+        #     if item[0] in markers:
+        #         char = markers[item[0]]
+    return '\n'.join(lines)
+
+
 
 def neighbours(point: Point) -> list[Point]:
     offsets = (-1, 0, 1)

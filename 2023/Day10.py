@@ -45,7 +45,7 @@ def solve_a(data:str):
 
     return max(visited.values())
 
-def solve_b(data:str):
+def solve_b(data:str, plot=False):
     grid = utils.parse_grid(data)
     start = list(filter(lambda x: grid[x] == 'S', grid))[0]
     q = deque()
@@ -99,10 +99,12 @@ def solve_b(data:str):
         #Scan line    
         for scan_x in ro:
             tp = utils.Point(scan_x, y)
-            parity += tp in visited and grid[tp] != '-'
+            parity += tp in visited and grid[tp] not in '-7F'
         if isOdd(parity):
-            enclosed.append((x,y))
-
+            enclosed.append(utils.Point(x,y))
+    if plot:
+        markers = {k:'X' for k in enclosed}
+        print(utils.plot_grid(grid, markers))
     return len(enclosed)
 
 def isOdd(num):
@@ -154,7 +156,10 @@ if __name__ == "__main__":
     assert (example_a == 4)
     puzzle.answer_a = solve_a(puzzle.input_data)
 
-    assert(solve_b(example_data_b_3) == 4)
-    assert(solve_b(example_data_b) == 8)
-    assert(solve_b(example_data_b_2) == 10)
+    assert(utils.plot_grid(utils.parse_grid(example_data)) == example_data)
+
+    plot = True
+    assert(solve_b(example_data_b_3, plot) == 4)
+    assert(solve_b(example_data_b, plot) == 8)
+    assert(solve_b(example_data_b_2, plot) == 10)
     puzzle.answer_b = solve_b(puzzle.input_data)
