@@ -13,22 +13,27 @@ def solve_a(data:str, expansion=1):
     (min_x, max_x, min_y, max_y) = bounding_box(grid_in)
     empty_columns = set(range(min_x, max_x+1))
     empty_rows = set(range(min_y, max_y+1))
+    occupied_rows = set()
+    occupied_columns = set()
     for gp in galaxy_points_in:
-        if gp.x in empty_columns:
-            empty_columns.remove(gp.x)
-        if gp.y in empty_rows:
-            empty_rows.remove(gp.y)
+        empty_columns.discard(gp.x)
+        empty_rows.discard(gp.y)
+        occupied_columns.add(gp.x)
+        occupied_rows.add(gp.y)
+
     #Expand galaxy
     galaxy:set[Point] = set()
     for gp in galaxy_points_in:
+        galaxies_to_the_left = len([gx for gx in occupied_columns if gx<gp.x])
+        galaxies_above = len([gy for gy in occupied_rows if gy<gp.y])
         columns_before = len([x for x in empty_columns if x<gp.x])
         rows_before = len([y for y in empty_rows if y<gp.y])
-        new_point = Point(gp.x+columns_before*expansion,
-                          gp.y+rows_before*expansion)
+        new_point = Point(galaxies_to_the_left+columns_before*(expansion+1),
+                          galaxies_above+rows_before*(expansion+1))
         galaxy.add(new_point)
     #Create pairs
     assert(len(galaxy_points_in) == len(galaxy))
-    pairs = it.combinations(galaxy, 2)
+    pairs = list(it.combinations(galaxy, 2))
 
     #Manhattan distance between all pairs
     lengths = sum([pair[0].L1(pair[1]) for pair in pairs])
@@ -36,8 +41,6 @@ def solve_a(data:str, expansion=1):
     return lengths
 
 
-def solve_b(data:str):
-    return 0
 
 
 if __name__ == "__main__":
