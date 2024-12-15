@@ -1,15 +1,17 @@
 from typing import Sequence
 from aocd.models import Puzzle
 import utils
+from collections import defaultdict
 
 
-def parse(data:str) -> tuple[dict[int,int], list[list[int]]]:
+def parse(data:str) -> tuple[dict[int,list[int]], list[list[int]]]:
     lines = data.splitlines()
     orderings = [tuple(utils.numbers(a)) for a in lines if '|' in a]
     updates = [utils.numbers(a) for a in lines if ',' in a]
 
-    # TODO: Must handle multiple dependencies
-    prerequisites = {b:a for a,b in orderings}
+    prerequisites = defaultdict(list)
+    for a,b in orderings:
+        prerequisites[b].append(a)
 
     return prerequisites, updates
 
@@ -19,8 +21,11 @@ def solve_a(data:str):
     prerequisites, updates = parse(data)
     correct_mids = []
     for update in updates:
-        prereq = {a:b for a,b in prerequisites.items() if a in update and b in update}
-        corrects = [update.index(page) < update.index(prereq[page]) if page in prereq else True for page in update ]
+        corrects = []
+        for page in update:
+            page_prereqs = prerequisites[page]
+            page_is_correct = all([update.index(page) > update.index(other) for other in update if page!=other and other in page_prereqs])
+            corrects.append(page_is_correct)
         if all(corrects):
             mid_index = len(update)//2
             correct_mids.append(update[mid_index])
