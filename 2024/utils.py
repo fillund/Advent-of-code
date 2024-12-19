@@ -3,6 +3,7 @@ from itertools import tee
 from dataclasses import dataclass
 import re
 from math import sqrt
+from collections import namedtuple
 
 @dataclass
 class Point():
@@ -54,7 +55,8 @@ def bounding_box(points:Iterable[Point]):
     max_x = max((p.x for p in points))
     min_y = min((p.y for p in points))
     max_y = max((p.y for p in points))
-    return (min_x, max_x, min_y, max_y)
+    Bbox = namedtuple("BoundingBox", ["Min_x", "Max_x", "Min_y", "Max_y"])
+    return Bbox(min_x, max_x, min_y, max_y)
 
 def numbers(string:str):
     return list(map(int, re.findall(r'\d+', string)))
