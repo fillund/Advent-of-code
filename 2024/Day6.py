@@ -3,6 +3,8 @@ import utils
 from utils import Point
 from enum import Enum, StrEnum, auto
 from collections import Counter
+from typing import Sequence, Iterable
+from tqdm import tqdm
 
 class Direction(Enum):
     UP = auto()
@@ -27,12 +29,14 @@ class Symbol(StrEnum):
     VISITIED = "X"
     EMPTY = "."
 
-
-def solve_a(data:str):
-    grid = utils.parse_grid(data)
+def make_path(grid) -> tuple[dict[Point, None], bool]:
+    grid = grid.copy()
     guard_pos = [k for k,v in grid.items() if v == Symbol.GUARD][0]
     current_dir = Direction.UP
     grid[guard_pos] = Symbol.VISITIED
+    path = {guard_pos:None}
+    is_loop = False
+    bumped_obstacles: set[tuple[Point, Direction]] = set()
     while guard_pos in grid:
         match current_dir:
             case Direction.UP:
@@ -45,23 +49,46 @@ def solve_a(data:str):
                 lookup = Point(guard_pos.x-1, guard_pos.y)
         
         if lookup not in grid:
+            is_loop = False
             break
         match grid[lookup]:
             case "#":
+                if (lookup, current_dir) in bumped_obstacles:
+                    is_loop = True
+                    break
+                bumped_obstacles.add((lookup, current_dir))
                 current_dir = current_dir.turn()
+
             case "." | "X" | "^":
                 grid[lookup] = Symbol.VISITIED.value
                 guard_pos = lookup
+                path[lookup] = None
             case _:
                 raise ValueError
+    return path, is_loop
+    
 
-    counter = Counter(grid.values())
-    print(counter)
-    return counter[Symbol.VISITIED]
+def solve_a(data:str):
+    grid = utils.parse_grid(data)
+    path,_ = make_path(grid)
+
+    return len(path)
 
     
 def solve_b(data:str):
-    pass
+    grid = utils.parse_grid(data)
+    guard_pos = [k for k,v in grid.items() if v == Symbol.GUARD][0]
+    path, _ = make_path(grid)
+    del path[guard_pos]
+    loops = 0
+    for p in tqdm(path):
+        new_grid = grid.copy()
+        new_grid[p] = Symbol.OBSTACLE.value
+        _, is_loop = make_path(new_grid)
+        if is_loop:
+            loops+=1
+    return loops
+
                 
 
 
@@ -74,7 +101,7 @@ if __name__ == "__main__":
     puzzle.answer_a = answer_a
 
     example_b = solve_b(puzzle.example_data)
-    assert (example_b == 48)
+    assert (example_b == 6)
     answer_b = solve_b(puzzle.input_data)
     puzzle.answer_b = answer_b
     
