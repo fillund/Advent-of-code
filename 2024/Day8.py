@@ -35,15 +35,24 @@ def solve_b(data:str):
     for freq in frequencies:
         points = [k for k,v in grid.items() if v == freq]
         for pair in it.combinations(points, 2):
-            nd_1 = np.array((pair[1].x, pair[1].y))
-            nd_0 = np.array((pair[0].x, pair[0].y))
-            A_B_vector = nd_1 - nd_0
-            node_1 = nd_0 - A_B_vector
-            node_2 = nd_1 + A_B_vector
-            if bbox.Min_x <= node_1[0] <= bbox.Max_x and bbox.Min_y <= node_1[1] <= bbox.Max_y:
-                antinodes[utils.Point(node_1[0], node_1[1])].append(freq)
-            if bbox.Min_x <= node_2[0] <= bbox.Max_x and bbox.Min_y <= node_2[1] <= bbox.Max_y:
-                antinodes[utils.Point(node_2[0], node_2[1])].append(freq)
+            done_0 = False
+            done_1 = False
+            n = 0
+            while not (done_0 and done_1):
+                n += 1
+                nd_1 = np.array((pair[1].x, pair[1].y))
+                nd_0 = np.array((pair[0].x, pair[0].y))
+                A_B_vector = nd_1 - nd_0
+                node_1 = nd_0 - n*A_B_vector
+                node_2 = nd_1 + n*A_B_vector
+                if bbox.Min_x <= node_1[0] <= bbox.Max_x and bbox.Min_y <= node_1[1] <= bbox.Max_y:
+                    antinodes[utils.Point(node_1[0], node_1[1])].append(freq)
+                else:
+                    done_0 = True
+                if bbox.Min_x <= node_2[0] <= bbox.Max_x and bbox.Min_y <= node_2[1] <= bbox.Max_y:
+                    antinodes[utils.Point(node_2[0], node_2[1])].append(freq)
+                else:
+                    done_1 = True
 
     return len(antinodes)
                 
