@@ -34,6 +34,10 @@ def solve_b(data:str):
     antinodes: dict[utils.Point, list] = defaultdict(list)
     for freq in frequencies:
         points = [k for k,v in grid.items() if v == freq]
+        if len(points) > 1:
+            for p in points:
+                antinodes[p].append(freq)
+                
         for pair in it.combinations(points, 2):
             done_0 = False
             done_1 = False
