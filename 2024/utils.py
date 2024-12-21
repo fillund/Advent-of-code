@@ -50,6 +50,12 @@ def neighbours(point: Point) -> list[Point]:
                 out.append(Point(point.x + ox, point.y + oy))
     return out
 
+def cardinal_neighbours(point: Point) -> list[Point]:
+    return [Point(point.x+1, point.y),
+            Point(point.x-1, point.y),
+            Point(point.x, point.y+1),
+            Point(point.x, point.y-1)]
+
 def bounding_box(points:Iterable[Point]):
     min_x = min((p.x for p in points))
     max_x = max((p.x for p in points))
