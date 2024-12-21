@@ -21,6 +21,12 @@ class Point():
     def L1(self, other:"Point"):
         # Manhattan distance to other point
         return abs(self.x-other.x)+abs(self.y-other.y)
+    
+    def neighbours(self):
+        return neighbours(self)
+    
+    def cardinal_neighbours(self):
+        return cardinal_neighbours(self)
 
 def nwise(iterable:Iterable, n:int)->Iterable[tuple]:
     iters = tee(iterable, n)
