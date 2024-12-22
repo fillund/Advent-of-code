@@ -49,58 +49,26 @@ class Region():
 def solve_a(data:str):
     grid = utils.parse_grid(data)
     regions:list[Region] = []
+    explored: set[Point] = set()
     next_id = 0
-    print("Creating regions")
-    for p, v in tqdm(grid.items()):
-        found = False
-        for r in regions:
-            if v == r.label and p in r.neighbours():
-                r.add(p)
-                found = True
-                break
-        if not found:
-            regions.append(Region(next_id, v, [p]))
-            next_id+=1
-    merged_regions = []
-    merge_groups:list[list[int]] = []
-    print("Creating merge groups")
-    for r1, r2 in tqdm(it.combinations(regions, 2)):
-        if r1.label == r2.label and r1.neighbours()&r2.points:
-            found = False
-            for group in merge_groups:
-                if r1.id in group:
-                    group.append(r2.id)
-                    found = True
-                    break
-                elif r2.id in group:
-                    group.append(r1.id)
-                    found = True
-                    break
-            if not found:
-                merge_groups.append([r1.id, r2.id])
-    print("Merging regions")
-    for group in merge_groups:
-        regions_to_merge = [r for r in regions if r.id in group]
-        points = []
-        for r in regions_to_merge:
-            points.extend(r.points)
-            regions.remove(r)
-        new_region = Region(regions_to_merge[0].id, regions_to_merge[0].label, points)
-        regions.append(new_region)
+    # Go through entire grid
+    for p, v  in grid.items():
+        #Skip explored
+        if p in explored:
+            continue
+        q = [p]
+        # Create new region. Must be new region, since regions are explored entirely before moving on.
+        r = Region(next_id, v, None)
+        next_id += 1
+        #Explore new region
+        while len(q) > 0:
+            current = q.pop()
+            explored.add(current)
+            if grid[current] == v:
+                r.add(current)
+            q.extend([pn for pn in current.cardinal_neighbours() if grid.get(pn, None) == v and pn not in explored])
+        regions.append(r)
 
-    # print("Removing merged regions")
-    # for rm in tqdm(regions.copy()):
-    #     if rm.id in merged_regions:
-    #         regions.remove(rm)
-    all_points = []
-    for r in regions:
-        all_points.extend(r.points)
-    counter = Counter(all_points)
-    doubles = [p for p,c in counter.items() if c>1]
-    print(doubles)
-    assert(counter.total() == len(grid))
-    for r in regions:
-        print(f"Plant {r.label}: Area:{r.area()} Perimeter:{r.perimiter()} Score: {r.area()*r.perimiter()}")
     return sum([r.area()*r.perimiter() for r in regions])
     
 def solve_b(data:str):
