@@ -11,6 +11,12 @@ class SweepState(Enum):
     INSIDE = auto()
     OUTSIDE = auto()
 
+class Direction(Enum):
+    UP = auto()
+    RIGHT = auto()
+    DOWN = auto()
+    LEFT = auto()
+
 @dataclass(unsafe_hash=True)
 class Region():
     id:int
@@ -49,71 +55,16 @@ class Region():
         return region_per
 
     def sides(self):
-        sides = 4 # Must at least bound a box
+        sides = 0 # Must at least bound a box
         bbox = utils.bounding_box(self.points)
-        # Vertical sweep, check x+-1
-        for x in range(bbox.Min_x, bbox.Max_x+1):
-            # TODO: Check start condition
-            left_state = SweepState.INSIDE if Point(x-1, bbox.Min_y) in self.points else SweepState.OUTSIDE
-            right_state = SweepState.INSIDE if Point(x+1, bbox.Min_y) in self.points else SweepState.OUTSIDE
-            for y in range(bbox.Min_y, bbox.Max_y+1):
-                p = Point(x,y)
-                left = Point(x-1, y)
-                right = Point(x+1, y)
-                if p not in self.points:
-                    ## Skip checks if outside to not double count
-                    if left not in self.points:
-                        left_state = SweepState.OUTSIDE
-                    else:
-                        left_state = SweepState.INSIDE
-                    if right not in self.points:
-                        right_state = SweepState.OUTSIDE
-                    else:
-                        right_state = SweepState.INSIDE
-                    continue
-                # Check left
-                if left_state == SweepState.INSIDE and left not in self.points:
-                    sides += 1
-                    left_state = SweepState.OUTSIDE
-                elif left_state == SweepState.OUTSIDE and left in self.points:
-                    left_state = SweepState.INSIDE
-                # Check right
-                if right_state == SweepState.INSIDE and right not in self.points:
-                    sides += 1
-                    right_state = SweepState.OUTSIDE
-                elif right_state == SweepState.OUTSIDE and right in self.points:
-                    right_state = SweepState.INSIDE
-        # Horizontal sweep
+        direction = Direction.UP
+        #Find leftmost point from the top
         for y in range(bbox.Min_y, bbox.Max_y+1):
-            up_state = SweepState.INSIDE if Point(bbox.Min_x, y-1) in self.points else SweepState.OUTSIDE
-            down_state = SweepState.INSIDE if Point(bbox.Min_x, y+1) in self.points else SweepState.OUTSIDE
-            for x in range(bbox.Min_x, bbox.Max_x+1):
-                p = Point(x,y)
-                if p not in self.points:
-                    # Skip checks if outside to not double count
-                    if up not in self.points:
-                        up_state = SweepState.OUTSIDE
-                    else:
-                        up_state = SweepState.INSIDE
-                    if down not in self.points:
-                        down_state = SweepState.OUTSIDE
-                    else:
-                        down_state = SweepState.INSIDE
-                    continue
-                up = Point(x, y-1)
-                down = Point(x, y+1)
-                # Check up
-                if up_state == SweepState.INSIDE and up not in self.points:
-                    sides += 1
-                    up_state = SweepState.OUTSIDE
-                elif up_state == SweepState.OUTSIDE and up in self.points:
-                    up_state = SweepState.INSIDE
-                # Check down
-                if down_state == SweepState.INSIDE and down not in self.points:
-                    sides += 1
-                    down_state = SweepState.OUTSIDE
-                elif down_state == SweepState.OUTSIDE and down in self.points:
-                    down_state = SweepState.INSIDE
+            point = Point(bbox.Min_x, y)
+            if point in self.points:
+                start = point
+                break
+        # TODO: Do perimeter walk
         return sides
 
     def area(self):
