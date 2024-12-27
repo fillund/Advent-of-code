@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import re
 from math import sqrt
 from collections import namedtuple
+from typing import Any
 
 @dataclass
 class Point():
@@ -46,6 +47,18 @@ def parse_grid(data:str) -> dict[Point, str]:
         for x, char in enumerate(line):
             grid[Point(x, y)] = char
     return grid
+
+def grid_to_string(grid: dict[Point, Any], filler='.') -> str:
+    bbox = bounding_box(grid)
+    lines = []
+    for y in range(bbox.Min_y, bbox.Max_y+1):
+        line = []
+        for x in range(bbox.Min_x, bbox.Max_x+1):
+            val = grid.get(Point(x,y), filler)
+            line.append(str(val))
+        lines.append("".join(line))
+    return "\n".join(lines)    
+
 
 def neighbours(point: Point) -> list[Point]:
     offsets = (-1, 0, 1)
