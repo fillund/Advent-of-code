@@ -10,6 +10,7 @@ pandas = "*"
 jupyter = "*"
 numpy = "*"
 tqdm = "*"
+scipy = "*"
 
 [dev-packages]
 pylint = "*"
