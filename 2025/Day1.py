@@ -23,19 +23,19 @@ def solve_b(data:str):
         dir, val = line[0], int(line[1:])
         match dir:
             case 'R': 
-                running = running+val
-                while running > 99:
-                    count += 1
-                    running -= 100
+                for _ in range(val):
+                    running += 1
+                    if running == 100:
+                        running -= 100
+                    if running == 0:
+                        count += 1
             case 'L': 
-                old = running
-                running = running-val
-                # TODO: Catch When previous value 
-                while running < 0:
-                    count += 1 if old!=0 else 0
-                    running += 100
-        # if running == 0:
-        #     count += 1
+                for _ in range(val):
+                    running -=1
+                    if running == 0:
+                        count += 1
+                    if running == -1:
+                        running += 100
     return count
 
 
