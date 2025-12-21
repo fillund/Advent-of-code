@@ -12,17 +12,17 @@ def solve_a(data:str):
 def solve_b(data:str):
     pass
                 
-
+example_data = """"""
 
 if __name__ == "__main__":
     puzzle = Puzzle(year=2025, day=1)
 
-    example_a = solve_a(puzzle.example_data)
+    example_a = solve_a(example_data)
     assert (example_a == 161)
     answer_a = solve_a(puzzle.input_data)
     puzzle.answer_a = answer_a
 
-    example_b = solve_b(puzzle.example_data)
+    example_b = solve_b(example_data)
     assert (example_b == 48)
     answer_b = solve_b(puzzle.input_data)
     puzzle.answer_b = answer_b
