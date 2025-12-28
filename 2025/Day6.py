@@ -1,7 +1,7 @@
 from aocd.models import Puzzle
 import utils
 import math
-
+import itertools as it
 
 def parse_columns(data:str) -> list[list[str]]:
     columns: list[list[str]] = []
@@ -13,13 +13,29 @@ def parse_columns(data:str) -> list[list[str]]:
         else:
             for c,p in zip(columns, parts):
                 c.append(p)
+
+    col_widths = [0]*len(columns)
+    for i, col in enumerate(columns):
+        widths = [len(p) for p in col]
+        col_widths[i] = max(widths)
+        
+    
+    acc_widths = list(it.accumulate(col_widths))
+    for i, line in enumerate(data.splitlines()):
+
+        for j, cw in enumerate(col_widths):
+            start = j + acc_widths[j] - cw # j for number of delimiters (spaces) passed, acc_widths for number of tokens passed
+            stop = j + acc_widths[j]
+            columns[j][i] = line[start:stop]
+
+
     return columns
 
 def solve_a(data:str):
     cols = parse_columns(data)
     results: list[int] = []
     for col in cols:
-        op = col[-1]
+        op = col[-1].strip()
         vals = [int(val) for val in col[:-1]]
         match op:
             case '+':
@@ -28,18 +44,25 @@ def solve_a(data:str):
                 results.append(math.prod(vals))
     return sum(results)
 
-    
+def num(s:str) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        return 0 
+
 def solve_b(data:str):
     cols = parse_columns(data)
     results = []
     for col in cols:
-        op = col[-1]
-        max_width = max(len(p) for p in col[:-1])
-        padded = [p.ljust(max_width) for p in col[:-1]] # TODO: Do not adjust. Must respect alignment in parsing
+        op = col[-1].strip()
+
+        raw = col[:-1]
         vals = []
-        for pos in range(max_width):
-            chars = [p[pos] for p in padded]
-            vals.append(int(''.join(chars)))
+        width = len(raw[0])
+        for i in range(width):
+            chars = [p[i] for p in raw]
+            val = int(''.join(chars))
+            vals.append(val)              
 
         match op:
             case '+':
